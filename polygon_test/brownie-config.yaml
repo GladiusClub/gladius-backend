@@ -1,0 +1,9 @@
+dotenv: .env 
+
+networks:
+  mumbai:
+    host: https://polygon-mumbai.infura.io/v3/$YOUR_INFURA_PROJECT_ID
+    chainid: 80001
+    explorer: https://mumbai.polygonscan.com/
+    name: Mumbai Testnet
+
