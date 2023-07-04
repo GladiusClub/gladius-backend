@@ -1,12 +1,8 @@
 {
-  "firestore": {
-    "rules": "firestore.rules",
-    "indexes": "firestore.indexes.json"
-  },
   "functions": [
     {
+      "codebase": "https-time-server",
       "source": "functions",
-      "codebase": "default",
       "ignore": [
         "node_modules",
         ".git",
