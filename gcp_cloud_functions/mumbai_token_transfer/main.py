@@ -25,9 +25,14 @@ private_key = ""
 wallet_address = '0x717320e0Ea465dD9ee7b0345219DB1A6b2884869'
 
 
+def token_transfer(request):
+    # Get the Firebase ID token from the Authorization header
+    bearer_token = request.headers.get("Authorization")
+    if not bearer_token:
+        return jsonify({"error": "Authorization token not found"}), 401
 
-def initialize_firebase_admin_sdk():
-
+    id_token = bearer_token.split(" ")[1]       
+    # Call this function to initialize the Firebase Admin SDK in your Cloud Function
     try: 
         # Replace with your Cloud Storage bucket and the path to the service account credentials JSON file
         bucket_name = "gladius-backend"
@@ -54,16 +59,6 @@ def initialize_firebase_admin_sdk():
 
     except Exception as e:
             print("Error initializing Firebase Admin SDK:", e)
-
-def token_transfer(request):
-    # Get the Firebase ID token from the Authorization header
-    bearer_token = request.headers.get("Authorization")
-    if not bearer_token:
-        return jsonify({"error": "Authorization token not found"}), 401
-
-    id_token = bearer_token.split(" ")[1]       
-    # Call this function to initialize the Firebase Admin SDK in your Cloud Function
-    initialize_firebase_admin_sdk()
 
 
     try:
