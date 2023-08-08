@@ -44,7 +44,6 @@ def token_transfer(request):
             "Access-Control-Max-Age": "3600",
         }
 
-
         return ("", 204, headers)
 
     # Set CORS headers for the main request
