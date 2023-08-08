@@ -3,10 +3,14 @@ from web3 import Web3
 from decimal import Decimal, getcontext
 
 import firebase_admin
-from firebase_admin import credentials, auth
+from firebase_admin import credentials, auth, firestore
 from google.cloud import storage
 
 from flask import request, jsonify
+
+import tempfile # transform Firebase SDK key file
+import functions_framework #  Enable CORS
+
 
 # Read the ABI data from GLCToken.json
 with open('GLCToken.json', 'r') as file:
@@ -20,12 +24,31 @@ getcontext().prec = 28
 polygon_rpc_url = "https://rpc-mumbai.maticvigil.com"  # Replace with the appropriate RPC endpoint
 w3 = Web3(Web3.HTTPProvider(polygon_rpc_url))
 
-# Replace with your wallet's private key
+# Replace with test data is needed
+# In Production verison this data is queried from Firebase via id_token
 private_key = ""
-wallet_address = '0x717320e0Ea465dD9ee7b0345219DB1A6b2884869'
+wallet_address = ""
 
+@functions_framework.http
 
 def token_transfer(request):
+
+    # Set CORS headers for the preflight request
+    if request.method == "OPTIONS":
+        # Allows GET requests from any origin with the Content-Type
+        # header and caches preflight response for an 3600s
+        headers = {
+            "Access-Control-Allow-Origin": "gladiusclub.com",
+            "Access-Control-Allow-Methods": "GET",
+            "Access-Control-Allow-Headers": "Content-Type",
+            "Access-Control-Max-Age": "3600",
+        }
+
+        return ("", 204, headers)
+
+    # Set CORS headers for the main request
+    headers = {"Access-Control-Allow-Origin": "gladiusclub.com"}
+
     # Get the Firebase ID token from the Authorization header
     bearer_token = request.headers.get("Authorization")
     if not bearer_token:
@@ -33,7 +56,7 @@ def token_transfer(request):
 
     id_token = bearer_token.split(" ")[1]       
     # Call this function to initialize the Firebase Admin SDK in your Cloud Function
-    try: 
+    try:
         # Replace with your Cloud Storage bucket and the path to the service account credentials JSON file
         bucket_name = "gladius-backend"
         credentials_file_path = "firebase-admi-sdk-d55dc53a0acc.json"
@@ -43,22 +66,27 @@ def token_transfer(request):
         bucket = storage_client.get_bucket(bucket_name)
         blob = bucket.blob(credentials_file_path)
         credentials_file_content = blob.download_as_text()
+        print(credentials_file_path + ' was downloaded from ' + bucket_name)
 
         # Initialize the Firebase Admin SDK with the downloaded service account credentials
-        cred = credentials.Certificate(credentials_file_content)
-        firebase_admin.initialize_app(cred)
+               # Create a temporary file to write the credentials content
+        with tempfile.NamedTemporaryFile(delete=False) as temp_file:
+            temp_file.write(credentials_file_content.encode())
+            temp_file_path = temp_file.name 
 
-        # If the above doesn't work:
-        # Create a temporary file and write the content of the credentials JSON to it
-        # with open("/tmp/serviceAccountKey.json", "w") as tmp_file:
-        #    tmp_file.write(credentials_file_content)
+        # Initialize the Firebase Admin SDK with the temporary file
+        if not firebase_admin._apps:
+            cred = credentials.Certificate(temp_file_path)
+            firebase_admin.initialize_app(cred)
+        db = firestore.client()
 
-        # Initialize the Firebase Admin SDK with the downloaded service account credentials
-        #cred = credentials.Certificate("/tmp/serviceAccountKey.json")
-        #firebase_admin.initialize_app(cred)
+        #cred = credentials.Certificate(credentials_file_content)
+        # firebase_admin.initialize_app(cred)
+
+        print('Firebase connection is up')
 
     except Exception as e:
-            print("Error initializing Firebase Admin SDK:", e)
+        print("Error initializing Firebase Admin SDK:", e)
 
 
     try:
@@ -69,18 +97,47 @@ def token_transfer(request):
         # Access user information from the decoded token
         uid = decoded_token["uid"]
         email = decoded_token["email"]
-        # Add any other user-related data you need
 
+        print(email + ' is authenticated with uid ' + uid)
 
+        # Retrieve the user's document from the Firestore
+        user_doc_ref = db.collection('users').document(uid)
+        user_doc = user_doc_ref.get()
+
+        if user_doc.exists:
+            user_data = user_doc.to_dict()
+            private_key = user_data.get('privateKey')
+            wallet_address = user_data.get('address')
+            username = user_data.get('name')
+            print(username +'`s wallet is ' +wallet_address ) 
+
+            if private_key:
+                # Use the private_key
+                print(f"Private Key: {private_key}")
+            else:
+                print("Private Key not found in user document")
+        else:
+            print("User document not found")
+
+    except auth.ExpiredIdTokenError as e:
+        return jsonify({"error": "Token expired"}), 401, headers
+
+    except Exception as e:
+        print("Firebase Error:", e)
+
+    try:
         #####################################
         # Cloud Function logic start
-
+        
+        # request_json = json.loads(request)
+        
         request_json = request.get_json()
+
         if request_json and 'to_address' in request_json and 'amount' in request_json:
             to_address = request_json['to_address']
-            amount = request_json['amount']
+            amount = Decimal(request_json['amount'])  # Convert the amount to a Decimal
 
-            #  GLC Token contract address
+            # GLC Token contract address
             token_contract_address = "0x7A57269A63F37244c09742d765B18b1852078072"
 
             # Replace with the token decimals (usually 18 for most ERC20 tokens)
@@ -89,30 +146,34 @@ def token_transfer(request):
             # Convert the amount to the token's base unit
             amount_in_base_unit = int(amount * 10**token_decimals)
 
-            # Create the transaction
-            transaction = {
-                'to': token_contract_address,
-                'value': 0,
-                'gas': 200000,
-                'gasPrice': w3.toWei('10', 'gwei'),
-                'nonce': w3.eth.getTransactionCount(w3.toChecksumAddress(wallet_address)),
-                'data': w3.contract.encodeABI(fn_name='transfer', args=[to_address, amount_in_base_unit]),
-            }
+            # Load the contract ABI (Replace this with the actual ABI of your token contract)
+            token_abi = contract_data['abi']  # Put your token contract ABI here
 
+            # Instantiate the contract
+            contract = w3.eth.contract(address=token_contract_address, abi=token_abi)
+
+            # Transfer tokens
+            transaction = contract.functions.transfer(to_address, amount_in_base_unit).buildTransaction({
+                    'chainId': 80001,  # Replace with the appropriate chain ID (Mumbai network has chain ID 80001)
+                    'gas': 200000,
+                    'gasPrice': Web3.toWei('10', 'gwei'),  # Use Web3.toWei function directly
+                    'nonce': w3.eth.getTransactionCount(w3.toChecksumAddress(wallet_address))
+                    # 'value': 0,  # Set the value to 0 for ERC20 token transfers
+                })
+            
             # Sign the transaction
             signed_transaction = w3.eth.account.signTransaction(transaction, private_key)
 
             # Send the transaction
             tx_hash = w3.eth.sendRawTransaction(signed_transaction.rawTransaction)
 
+            return jsonify(f'Transaction sent. Transaction hash: {tx_hash.hex()}'), 200, headers
+
         # Cloud Function logic end
         #####################################
 
+    except json.JSONDecodeError:
+        return 'Invalid JSON payload.'
 
-
-        # Return a response to the client
-        return jsonify({"message": "Success", "uid": uid, "email": email, "Transaction sent. Transaction hash:" : tx_hash.hex() }), 200
-
-    except auth.AuthError as e:
-        print("Error verifying Firebase ID token:", e)
-        return jsonify({"error": "Unauthorized"}), 403
+    except KeyError:
+        return 'Invalid request. Please provide "to_address" and "amount" in the JSON payload.'
