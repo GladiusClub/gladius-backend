@@ -38,7 +38,7 @@ def token_transfer(request):
         # Allows GET requests from any origin with the Content-Type
         # header and caches preflight response for an 3600s
         headers = {
-            "Access-Control-Allow-Origin": "gladiusclub.com",
+            "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "GET",
             "Access-Control-Allow-Headers": "Content-Type",
             "Access-Control-Max-Age": "3600",
@@ -47,7 +47,7 @@ def token_transfer(request):
         return ("", 204, headers)
 
     # Set CORS headers for the main request
-    headers = {"Access-Control-Allow-Origin": "gladiusclub.com"}
+    headers = {"Access-Control-Allow-Origin": "*"}
 
     # Get the Firebase ID token from the Authorization header
     bearer_token = request.headers.get("Authorization")
