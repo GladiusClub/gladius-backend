@@ -129,46 +129,56 @@ def token_transfer(request):
     try:
         #####################################
         # Cloud Function logic start
+
+        # GLC Token contract address
+        token_contract_address = "0x7A57269A63F37244c09742d765B18b1852078072"
+
+
+        # Load the contract ABI (Replace this with the actual ABI of your token contract)
+        token_abi = contract_data['abi']  # Put your token contract ABI here
+
+        # Instantiate the contract
+        contract = w3.eth.contract(address=token_contract_address, abi=token_abi)
+
         
         # request_json = json.loads(request)
         
         request_json = request.get_json()
 
-        if request_json and 'to_address' in request_json and 'amount' in request_json:
-            to_address = request_json['to_address']
-            amount = Decimal(request_json['amount'])  # Convert the amount to a Decimal
+        if 'transactions' in request_json:
+            transactions = request_json['transactions']
+            results = []
 
-            # GLC Token contract address
-            token_contract_address = "0x7A57269A63F37244c09742d765B18b1852078072"
+            for tx in transactions:
+                to_address = tx['to_address']
+                amount = Decimal(tx['amount']) # Convert the amount to a Decimal
 
-            # Replace with the token decimals (usually 18 for most ERC20 tokens)
-            token_decimals = 18
+                # Replace with the token decimals (usually 18 for most ERC20 tokens)
+                token_decimals = 18
 
-            # Convert the amount to the token's base unit
-            amount_in_base_unit = int(amount * 10**token_decimals)
+                # Convert the amount to the token's base unit
+                amount_in_base_unit = int(amount * 10**token_decimals)
 
-            # Load the contract ABI (Replace this with the actual ABI of your token contract)
-            token_abi = contract_data['abi']  # Put your token contract ABI here
-
-            # Instantiate the contract
-            contract = w3.eth.contract(address=token_contract_address, abi=token_abi)
-
-            # Transfer tokens
-            transaction = contract.functions.transfer(to_address, amount_in_base_unit).buildTransaction({
+                # Transfer tokens
+                transaction = contract.functions.transfer(to_address, amount_in_base_unit).buildTransaction({
                     'chainId': 80001,  # Replace with the appropriate chain ID (Mumbai network has chain ID 80001)
                     'gas': 200000,
                     'gasPrice': Web3.toWei('10', 'gwei'),  # Use Web3.toWei function directly
                     'nonce': w3.eth.getTransactionCount(w3.toChecksumAddress(wallet_address))
                     # 'value': 0,  # Set the value to 0 for ERC20 token transfers
-                })
-            
-            # Sign the transaction
-            signed_transaction = w3.eth.account.signTransaction(transaction, private_key)
+                    })
+                
+                # Sign the transaction
+                signed_transaction = w3.eth.account.signTransaction(transaction, private_key)
 
-            # Send the transaction
-            tx_hash = w3.eth.sendRawTransaction(signed_transaction.rawTransaction)
+                # Send the transaction
+                tx_hash = w3.eth.sendRawTransaction(signed_transaction.rawTransaction)
 
-            return jsonify(f'Transaction sent. Transaction hash: {tx_hash.hex()}'), 200, headers
+                results.append({'to_address': to_address, 'amount': amount, 'tx_hash': tx_hash.hex()})
+
+            return jsonify(results), 200, headers
+
+            # return jsonify(f'Transaction sent. Transaction hash: {tx_hash.hex()}'), 200, headers
 
         # Cloud Function logic end
         #####################################
