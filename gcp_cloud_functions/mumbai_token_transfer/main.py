@@ -149,6 +149,10 @@ def token_transfer(request):
             transactions = request_json['transactions']
             results = []
 
+            # Get the current nonce for the wallet address
+            current_nonce = w3.eth.getTransactionCount(w3.toChecksumAddress(wallet_address))
+
+
             for tx in transactions:
                 to_address = tx['to_address']
                 amount = Decimal(tx['amount']) # Convert the amount to a Decimal
@@ -164,7 +168,7 @@ def token_transfer(request):
                     'chainId': 80001,  # Replace with the appropriate chain ID (Mumbai network has chain ID 80001)
                     'gas': 200000,
                     'gasPrice': Web3.toWei('10', 'gwei'),  # Use Web3.toWei function directly
-                    'nonce': w3.eth.getTransactionCount(w3.toChecksumAddress(wallet_address))
+                    'nonce': current_nonce  # FOR SINGLE TRANSACTION USE: w3.eth.getTransactionCount(w3.toChecksumAddress(wallet_address))
                     # 'value': 0,  # Set the value to 0 for ERC20 token transfers
                     })
                 
@@ -175,6 +179,9 @@ def token_transfer(request):
                 tx_hash = w3.eth.sendRawTransaction(signed_transaction.rawTransaction)
 
                 results.append({'to_address': to_address, 'amount': amount, 'tx_hash': tx_hash.hex()})
+
+                # Increment the current nonce for the next transaction
+                current_nonce += 1
 
             return jsonify(results), 200, headers
 
