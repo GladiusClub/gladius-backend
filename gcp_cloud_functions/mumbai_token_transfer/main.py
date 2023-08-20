@@ -1,3 +1,4 @@
+import time
 import json
 from web3 import Web3
 from decimal import Decimal, getcontext
@@ -29,8 +30,31 @@ w3 = Web3(Web3.HTTPProvider(polygon_rpc_url))
 private_key = ""
 wallet_address = ""
 
-@functions_framework.http
+# Define a function to wait for transaction confirmation
+def wait_for_confirmation(tx_hash):
+    max_retries = 60  # Maximum number of retries (adjust as needed)
+    sleep_time = 1  # Sleep for 5 seconds between retries (adjust as needed)
+    retry_count = 0
 
+    while retry_count < max_retries:
+        try:
+            # Check the transaction receipt
+            receipt = w3.eth.getTransactionReceipt(tx_hash)
+            if receipt is not None:
+                # Transaction confirmed
+                return receipt
+        except Exception as e:
+            # Handle exceptions, e.g., if the transaction hasn't been mined yet
+            print(f"Error checking transaction receipt: {e}")
+
+        # Sleep for a while and increment the retry count
+        time.sleep(sleep_time)
+        retry_count += 1
+
+    # Transaction not confirmed within the maximum retries
+    return None
+
+@functions_framework.http
 def token_transfer(request):
 
     # Set CORS headers for the preflight request
@@ -177,8 +201,17 @@ def token_transfer(request):
 
                 # Send the transaction
                 tx_hash = w3.eth.sendRawTransaction(signed_transaction.rawTransaction)
+                # Send the transaction and wait for confirmation
+                transaction_receipt = wait_for_confirmation(tx_hash)
 
-                results.append({'to_address': to_address, 'amount': amount, 'tx_hash': tx_hash.hex()})
+                if transaction_receipt is not None:
+                    # Transaction confirmed
+                    # return jsonify(results), 200, headers
+                    results.append({'to_address': to_address, 'amount': amount, 'tx_hash': tx_hash.hex()})
+                else:
+                    # Transaction not confirmed within the specified retries
+                    return jsonify(f'Transaction not confirmed within the specified retries. Transaction hash: {tx_hash.hex()}'), 500, headers
+                    #return "Transaction not confirmed within the specified retries", 500, headers
 
                 # Increment the current nonce for the next transaction
                 current_nonce += 1
