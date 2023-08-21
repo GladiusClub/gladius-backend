@@ -226,11 +226,11 @@ def token_transfer(request):
                     #return jsonify(f'Transaction sent. to_address: {to_address}, amount: {amount}, tx_hash: {tx_hash.hex()}'), 200, headers
 
                     # Append transactions together
-                    #results.append({'to_address': to_address, 'amount': amount, 'tx_hash': tx_hash.hex()})
+                    results.append({'to_address': to_address, 'tx_hash': tx_hash.hex()})
                     #results.append(f'Transaction has been sent. Receiver: {to_address}, amount: {amount}, tx_hash: {tx_hash.hex()}')
-                    tx_hash_hex = tx_hash.hex()
-                    tx_hash_url = f"https://mumbai.polygonscan.com/tx/{tx_hash_hex}"  # Replace with the appropriate explorer URL
-                    results.append(f'Transaction has been sent. Receiver: {to_address}, amount: {amount}, tracking url: {tx_hash_url}')
+                    #tx_hash_hex = tx_hash.hex()
+                    #tx_hash_url = f"https://mumbai.polygonscan.com/tx/{tx_hash_hex}"  # Replace with the appropriate explorer URL
+                    #results.append(f'Transaction has been sent. Receiver: {to_address}, amount: {amount}, tracking url: {tx_hash_url}')
                 else:
                     
                     # Transaction not confirmed within the specified retries
