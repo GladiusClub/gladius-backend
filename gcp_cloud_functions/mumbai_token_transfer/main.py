@@ -1,4 +1,5 @@
-import time
+import urllib.parse
+import time 
 import json
 from web3 import Web3
 from decimal import Decimal, getcontext
@@ -33,7 +34,7 @@ wallet_address = ""
 # Define a function to wait for transaction confirmation
 def wait_for_confirmation(tx_hash):
     max_retries = 60  # Maximum number of retries (adjust as needed)
-    sleep_time = 1  # Sleep for 5 seconds between retries (adjust as needed)
+    sleep_time = 1  # Sleep for 1 seconds between retries (adjust as needed)
     retry_count = 0
 
     while retry_count < max_retries:
@@ -45,7 +46,7 @@ def wait_for_confirmation(tx_hash):
                 return receipt
         except Exception as e:
             # Handle exceptions, e.g., if the transaction hasn't been mined yet
-            print(f"Error checking transaction receipt: {e}")
+            print(f"Waiting for transaction receipt: {e}")
 
         # Sleep for a while and increment the retry count
         time.sleep(sleep_time)
@@ -187,6 +188,20 @@ def token_transfer(request):
                 # Convert the amount to the token's base unit
                 amount_in_base_unit = int(amount * 10**token_decimals)
 
+                if amount < 0:
+                    return jsonify(f'Amount should be a positive number'), 400, headers
+
+                if amount == 0:
+                    return jsonify(f'Not allowed to send 0 coins'), 400, headers
+
+                if wallet_address == to_address:
+                    return jsonify(f'Not allowed to send coins to yourself. Tried {amount}.'), 400,  headers  # Return an error response
+
+                sender_balance = contract.functions.balanceOf(wallet_address).call()
+                if sender_balance < amount_in_base_unit:
+                    # Return an error response
+                    return jsonify(f'Error: Transfer amount exceeds balance. Sender balance: {sender_balance/10**token_decimals}, Amount to transfer: {amount_in_base_unit/10**token_decimals}'), 400, headers
+
                 # Transfer tokens
                 transaction = contract.functions.transfer(to_address, amount_in_base_unit).buildTransaction({
                     'chainId': 80001,  # Replace with the appropriate chain ID (Mumbai network has chain ID 80001)
@@ -207,8 +222,17 @@ def token_transfer(request):
                 if transaction_receipt is not None:
                     # Transaction confirmed
                     # return jsonify(results), 200, headers
-                    results.append({'to_address': to_address, 'amount': amount, 'tx_hash': tx_hash.hex()})
+                    #current_nonce += 1
+                    #return jsonify(f'Transaction sent. to_address: {to_address}, amount: {amount}, tx_hash: {tx_hash.hex()}'), 200, headers
+
+                    # Append transactions together
+                    #results.append({'to_address': to_address, 'amount': amount, 'tx_hash': tx_hash.hex()})
+                    #results.append(f'Transaction has been sent. Receiver: {to_address}, amount: {amount}, tx_hash: {tx_hash.hex()}')
+                    tx_hash_hex = tx_hash.hex()
+                    tx_hash_url = f"https://mumbai.polygonscan.com/tx/{tx_hash_hex}"  # Replace with the appropriate explorer URL
+                    results.append(f'Transaction has been sent. Receiver: {to_address}, amount: {amount}, tracking url: {tx_hash_url}')
                 else:
+                    
                     # Transaction not confirmed within the specified retries
                     return jsonify(f'Transaction not confirmed within the specified retries. Transaction hash: {tx_hash.hex()}'), 500, headers
                     #return "Transaction not confirmed within the specified retries", 500, headers
@@ -216,15 +240,22 @@ def token_transfer(request):
                 # Increment the current nonce for the next transaction
                 current_nonce += 1
 
+            # Return all transactions at a time
             return jsonify(results), 200, headers
-
+            
+            # Return one transaction result    
             # return jsonify(f'Transaction sent. Transaction hash: {tx_hash.hex()}'), 200, headers
 
-        # Cloud Function logic end
-        #####################################
+    # Cloud Function logic end
+    #####################################
 
     except json.JSONDecodeError:
         return 'Invalid JSON payload.'
 
     except KeyError:
         return 'Invalid request. Please provide "to_address" and "amount" in the JSON payload.'
+    
+    except ValueError as e:
+        # Handle insufficient funds error
+        return jsonify(f'ValueError: {e}'), 400, headers
+    
