@@ -29,7 +29,7 @@ def firestore_sync(data, context):
         userId = affected_doc.id
         print(f"User UID {userId} triggered a change in club roles")
 
-        club_roles = data["value"]["fields"]["club_roles"]["arrayValue"]
+        club_roles = data["value"]["fields"]["clubs_roles"]["arrayValue"]
         print(club_roles)
 
         # Access the values directly from the dictionary
