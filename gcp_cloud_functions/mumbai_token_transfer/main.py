@@ -1,4 +1,3 @@
-import urllib.parse
 import time 
 import json
 from web3 import Web3
@@ -12,7 +11,6 @@ from flask import request, jsonify
 
 import tempfile # transform Firebase SDK key file
 import functions_framework #  Enable CORS
-
 
 # Read the ABI data from GLCToken.json
 with open('GLCToken.json', 'r') as file:
@@ -139,9 +137,10 @@ def token_transfer(request):
 
             if private_key:
                 # Use the private_key
-                print(f"Private Key: {private_key}")
+                #print(f"Private Key {private_key} is loaded from Firebase")
+                print(f"private_key was loaded from Firebase")
             else:
-                print("Private Key not found in user document")
+                print("private_key not found in user document")
         else:
             print("User document not found")
 
@@ -170,17 +169,26 @@ def token_transfer(request):
         
         request_json = request.get_json()
 
+     
         if 'transactions' in request_json:
             transactions = request_json['transactions']
+            
             results = []
 
-            # Get the current nonce for the wallet address
-            current_nonce = w3.eth.getTransactionCount(w3.toChecksumAddress(wallet_address))
-
-
             for tx in transactions:
+                    
+                current_nonce = w3.eth.getTransactionCount(w3.toChecksumAddress(wallet_address), "pending")
+                sender_balance = contract.functions.balanceOf(wallet_address).call()
+                
+                # Calculate the total nonce
+                print(f'Current nonce: {current_nonce}')
+
                 to_address = tx['to_address']
-                amount = Decimal(tx['amount']) # Convert the amount to a Decimal
+                amount = Decimal(tx['amount'])  # Convert the amount to a Decimal
+                
+
+                print(f'Sending {amount} to {to_address} from {wallet_address}')
+                
 
                 # Replace with the token decimals (usually 18 for most ERC20 tokens)
                 token_decimals = 18
@@ -189,60 +197,67 @@ def token_transfer(request):
                 amount_in_base_unit = int(amount * 10**token_decimals)
 
                 if amount < 0:
-                    return jsonify(f'Amount should be a positive number'), 400, headers
+                    results.append({'to_address': to_address, 'error': 'Amount should be a positive number'})
+                    print(f'to_address: {to_address} error: Amount should be a positive number')
 
-                if amount == 0:
-                    return jsonify(f'Not allowed to send 0 coins'), 400, headers
+                elif amount == 0:
+                    results.append({'to_address': to_address, 'error': 'Not allowed to send 0 coins'})
+                    print(f'to_address: {to_address} error: Not allowed to send 0 coins')
 
-                if wallet_address == to_address:
-                    return jsonify(f'Not allowed to send coins to yourself. Tried {amount}.'), 400,  headers  # Return an error response
+                elif wallet_address == to_address:
+                    results.append({'to_address': to_address, 'error': 'Not allowed to send coins to yourself'})
+                    print(f'to_address: {to_address} error Not allowed to send coins to yourself')
 
-                sender_balance = contract.functions.balanceOf(wallet_address).call()
-                if sender_balance < amount_in_base_unit:
-                    # Return an error response
-                    return jsonify(f'Error: Transfer amount exceeds balance. Sender balance: {sender_balance/10**token_decimals}, Amount to transfer: {amount_in_base_unit/10**token_decimals}'), 400, headers
+                elif sender_balance < amount_in_base_unit:
+                    # return jsonify(f'Error: Transfer amount exceeds balance. Sender balance: {sender_balance/10**token_decimals}, Amount to transfer: {amount_in_base_unit/10**token_decimals}'), 400, headers
+                    results.append({'to_address':  to_address, 'error': 'Transfer amount exceeds balance'})
+                    print(f'to_address:  {to_address} error: Transfer amount exceeds balance')
 
-                # Transfer tokens
-                transaction = contract.functions.transfer(to_address, amount_in_base_unit).buildTransaction({
-                    'chainId': 80001,  # Replace with the appropriate chain ID (Mumbai network has chain ID 80001)
-                    'gas': 200000,
-                    'gasPrice': Web3.toWei('10', 'gwei'),  # Use Web3.toWei function directly
-                    'nonce': current_nonce  # FOR SINGLE TRANSACTION USE: w3.eth.getTransactionCount(w3.toChecksumAddress(wallet_address))
-                    # 'value': 0,  # Set the value to 0 for ERC20 token transfers
-                    })
-                
-                # Sign the transaction
-                signed_transaction = w3.eth.account.signTransaction(transaction, private_key)
-
-                # Send the transaction
-                tx_hash = w3.eth.sendRawTransaction(signed_transaction.rawTransaction)
-                # Send the transaction and wait for confirmation
-                transaction_receipt = wait_for_confirmation(tx_hash)
-
-                if transaction_receipt is not None:
-                    # Transaction confirmed
-                    # return jsonify(results), 200, headers
-                    #current_nonce += 1
-                    #return jsonify(f'Transaction sent. to_address: {to_address}, amount: {amount}, tx_hash: {tx_hash.hex()}'), 200, headers
-
-                    # Append transactions together
-                    results.append({'to_address': to_address, 'tx_hash': tx_hash.hex()})
-                    #results.append(f'Transaction has been sent. Receiver: {to_address}, amount: {amount}, tx_hash: {tx_hash.hex()}')
-                    #tx_hash_hex = tx_hash.hex()
-                    #tx_hash_url = f"https://mumbai.polygonscan.com/tx/{tx_hash_hex}"  # Replace with the appropriate explorer URL
-                    #results.append(f'Transaction has been sent. Receiver: {to_address}, amount: {amount}, tracking url: {tx_hash_url}')
                 else:
-                    
-                    # Transaction not confirmed within the specified retries
-                    return jsonify(f'Transaction not confirmed within the specified retries. Transaction hash: {tx_hash.hex()}'), 500, headers
-                    #return "Transaction not confirmed within the specified retries", 500, headers
+                    # Create the transaction object, but don't send it yet
+                    transaction = contract.functions.transfer(to_address, amount_in_base_unit).buildTransaction({
+                        'chainId': 80001,  # Replace with the appropriate chain ID (Mumbai network has chain ID 80001)
+                        'gas': 200000,
+                        'gasPrice': Web3.toWei('10', 'gwei'),  # Use Web3.toWei function directly
+                        'nonce': current_nonce  # FOR SINGLE TRANSACTION USE: w3.eth.getTransactionCount(w3.toChecksumAddress(wallet_address))
+                        # 'value': 0,  # Set the value to 0 for ERC20 token transfers
+                    })
 
-                # Increment the current nonce for the next transaction
-                current_nonce += 1
+                # Sign the transaction
+                    signed_transaction = w3.eth.account.signTransaction(transaction, private_key)
+
+                    # Send the transaction
+                    tx_hash = w3.eth.sendRawTransaction(signed_transaction.rawTransaction)
+                    # Send the transaction and wait for confirmation
+                    # transaction_receipt = wait_for_confirmation(tx_hash)
+
+                    #if transaction_receipt is not None:
+                        # Transaction confirmed
+                        # return jsonify(results), 200, headers
+                        #current_nonce += 1
+                        #return jsonify(f'Transaction sent. to_address: {to_address}, amount: {amount}, tx_hash: {tx_hash.hex()}'), 200, headers
+
+                        # Append transactions together
+                    results.append({'to_address': to_address, 'tx_hash': tx_hash.hex()})
+                    print(f'Transaction {tx_hash.hex()} has been sent')
+                        #results.append(f'Transaction has been sent. Receiver: {to_address}, amount: {amount}, tx_hash: {tx_hash.hex()}')
+                        #tx_hash_hex = tx_hash.hex()
+                        #tx_hash_url = f"https://mumbai.polygonscan.com/tx/{tx_hash_hex}"  # Replace with the appropriate explorer URL
+                        #results.append(f'Transaction has been sent. Receiver: {to_address}, amount: {amount}, tracking url: {tx_hash_url}')
+                    #else:
+                        
+                        # Transaction not confirmed within the specified retries
+                    #    return jsonify(f'Transaction not confirmed within the specified retries. Transaction hash: {tx_hash.hex()}'), 500, headers
+                        #return "Transaction not confirmed within the specified retries", 500, headers
+
+                    # Increment the current nonce for the next transaction
+                    #current_nonce += 1
+                    current_nonce = w3.eth.getTransactionCount(wallet_address, 'pending')
+
 
             # Return all transactions at a time
             return jsonify(results), 200, headers
-            
+ 
             # Return one transaction result    
             # return jsonify(f'Transaction sent. Transaction hash: {tx_hash.hex()}'), 200, headers
 
