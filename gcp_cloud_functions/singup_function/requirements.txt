@@ -1,6 +1,5 @@
 web3==5.*
 firebase_admin
 google.cloud 
-flask
 functions_framework
 stellar_sdk

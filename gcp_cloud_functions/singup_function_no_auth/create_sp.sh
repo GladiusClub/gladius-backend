@@ -1,0 +1,1 @@
+gcloud functions deploy register_user_no_auth     --runtime python39     --trigger-http     --allow-unauthenticated     --source=./     --entry-point=register_user

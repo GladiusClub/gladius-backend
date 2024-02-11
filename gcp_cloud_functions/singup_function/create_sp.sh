@@ -1,1 +1,5 @@
-gcloud functions deploy register_user_no_auth     --runtime python39     --trigger-http     --allow-unauthenticated     --source=./     --entry-point=register_user
+gcloud functions deploy firebase_auth_sync \
+  --runtime python310 \
+  --trigger-event providers/firebase.auth/eventTypes/user.create \
+  --source=./ \
+  --entry-point=create_user_document

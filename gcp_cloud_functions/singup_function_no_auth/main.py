@@ -1,18 +1,22 @@
-# https://cloud.google.com/functions/docs/calling/firebase-auth
+from flask import request, jsonify
 
 import firebase_admin
-from firebase_admin import credentials, auth, firestore
+from firebase_admin import auth, credentials, firestore
 from google.cloud import storage
 
 from web3 import Web3
+#from dotenv import load_dotenv
 from datetime import datetime
+import json
+#from main import register_user
 
 import tempfile # transform Firebase SDK key file
-
+import functions_framework #  Enable CORS
 
 import requests
-from stellar_sdk import Keypair
 
+
+from stellar_sdk import Keypair
 def create_new_stellar_account():
     pair = Keypair.random()
     #print(f"Secret: {pair.secret}")
@@ -41,9 +45,32 @@ def create_new_account():
 
     return web3.eth.account.create()
 
+@functions_framework.http
+def register_user(request):
+    if request.method == "OPTIONS":
+        # Allows GET requests from any origin with the Content-Type
+        # header and caches preflight response for an 3600s
+        headers = {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, POST",  # Allow both GET and POST methods
+            "Access-Control-Allow-Headers": "Content-Type, Authorization",  # Added 'Authorization'
+            "Access-Control-Max-Age": "3600",
+        }
 
-# Cloud Function to create a Firestore document for a new user
-def create_user_document(data, context):
+
+        return ("", 204, headers)
+
+    # Set CORS headers for the main request
+    headers = {"Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "Content-Type, Authorization"}
+    
+    # Parse JSON request data
+    request_json = request.get_json()
+
+    user = request_json.get('user')
+    email = request_json.get('email')
+    password = request_json.get('password')
+    
+    
 
     # Call this function to initialize the Firebase Admin SDK in your Cloud Function
     try:
@@ -77,47 +104,42 @@ def create_user_document(data, context):
 
     except Exception as e:
         print("Error initializing Firebase Admin SDK:", e)
+    
+     # Create Firebase Authentication user
+    try:
+        user_record = auth.create_user(
+            email=email,
+            password=password
+        )
+        user_uuid = user_record.uid
+        print(f'Successfully created new user: {user_uuid}')
+
+    except firebase_admin.auth.AuthError as e:
+        # Handle any errors
+        print(f'Error creating new user: {e}')
+        return 'Error creating new user', 500
+        # Create user account and data
+    
+    account = create_new_account()
+    user_data = {
+        "name": user,
+        "email": email,
+        "age": 25,
+        "occupation": "Coach",
+        "is_active": True,
+        "clubs_roles": [],
+        "address": account.address,
+        "privateKey": account.key.hex(),
+        "created_at": datetime.now()
+    }
 
     try:
-
-        email = data["email"]
-        uid = data["uid"]
-        print("Function triggered by creation of user: %s" % data["uid"])
-
-        account = create_new_account()
-        print(f"wallet created for {uid}")
-
-        stellar_wallet = create_new_stellar_account()
-        print(f"stellar wallet created for {uid}")
-        activate_new_stellar = activate_new_stellar_account(stellar_wallet.public_key)
-        
-        user_record = auth.get_user(uid)
-        display_name = user_record.display_name
-        print(f"User {uid} display name is {display_name}")
-
-
-        #Create a wallet
-        # The data you want to save in Firestore
-        user_data = {
-            "email": email,
-            "is_active": True,
-            "clubs_roles": [],
-            "address": account.address,
-            "privateKey": account.key.hex(),
-            "created_at": datetime.now(),
-            "displayName": display_name,
-            "name" : display_name,
-            "stellar_wallet:" : stellar_wallet.secret,
-            "stellar_secret:" : stellar_wallet.public_key
-        }
-
-        # Set the data in Firestore
-        user_ref = db.collection("users").document(uid)
+        users_collection = db.collection('users')
+        user_ref = users_collection.document(user_uuid)
         user_ref.set(user_data)
-        print(f"Successfully added user {display_name} {uid} to users collection")
-
+        print(f"Successfully added user {user_uuid} to users collection")
     except Exception as e:
-        print("Firebase Error:", e)
+        print(f'Error inserting user data: {e}')
+        return 'Error inserting user data', 500
 
-# Deploy the Cloud Function
-# create_user_function = auth.user().on_create(create_user_document)
+    return 'User registered successfully', 200
