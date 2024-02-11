@@ -13,6 +13,24 @@ import json
 import tempfile # transform Firebase SDK key file
 import functions_framework #  Enable CORS
 
+import requests
+
+
+from stellar_sdk import Keypair
+def create_new_stellar_account():
+    pair = Keypair.random()
+    #print(f"Secret: {pair.secret}")
+    print(f"Stellar public Key: {pair.public_key}")
+    return pair
+
+def activate_new_stellar_account(public_key):
+    
+    response = requests.get(f"https://friendbot.stellar.org?addr={public_key}")
+    if response.status_code == 200:
+        print(f"SUCCESS! You have a new account :)\n{response.text}")
+    else:
+        print(f"ERROR! Response: \n{response.text}")
+    return response.text
 
 
 def create_new_account():
