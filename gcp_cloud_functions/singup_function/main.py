@@ -3,13 +3,13 @@
 import firebase_admin
 from firebase_admin import credentials, auth, firestore
 from google.cloud import storage
-
+from google.cloud import kms
+from google.oauth2 import service_account
+from cryptography.fernet import Fernet
 from web3 import Web3
 from datetime import datetime
 
 import tempfile # transform Firebase SDK key file
-
-
 import requests
 from stellar_sdk import Keypair
 
@@ -20,10 +20,9 @@ def create_new_stellar_account():
     return pair
 
 def activate_new_stellar_account(public_key):
-    
     response = requests.get(f"https://friendbot.stellar.org?addr={public_key}")
     if response.status_code == 200:
-        print(f"SUCCESS! You have a new account :)\n{response.text}")
+        print(f"SUCCESS! Your stellar account was activated :) ")
     else:
         print(f"ERROR! Response: \n{response.text}")
     return response.text
@@ -42,15 +41,33 @@ def create_new_account():
     return web3.eth.account.create()
 
 
-# Cloud Function to create a Firestore document for a new user
-def create_user_document(data, context):
 
-    # Call this function to initialize the Firebase Admin SDK in your Cloud Function
+def kms_decrypt_encryption_key(encrypted_encryption_key, KMS_KEY_FILE):
+    print("Initiate KMS")
+    project_id = 'wallet-login-45c1c'
+    parent = f"projects/{project_id}/locations/global"
+    key_ring_name = f"{parent}/keyRings/gladius-key-ring"
+    key_name = f"{key_ring_name}/cryptoKeys/gladius-key"
+    print(key_name)
+
     try:
-        # Replace with your Cloud Storage bucket and the path to the service account credentials JSON file
-        bucket_name = "gladius-backend"
-        credentials_file_path = "firebase-admi-sdk-d55dc53a0acc.json"
+        # Create the credentials object from the service account file.
+        kms_credentials = service_account.Credentials.from_service_account_file(KMS_KEY_FILE)
+        kms_client  = kms.KeyManagementServiceClient(credentials=kms_credentials)
+        response = kms_client.decrypt(
+        request={"name": key_name, "ciphertext": encrypted_encryption_key}
+        )
+        encryption_key = response.plaintext
 
+        return encryption_key
+
+    except Exception as e:
+        print("Error in KMS client: ", e)
+
+
+
+def download_file_from_bucket(bucket_name, credentials_file_path):
+    try:
         # Download the service account credentials JSON file from Cloud Storage
         storage_client = storage.Client()
         bucket = storage_client.get_bucket(bucket_name)
@@ -63,20 +80,56 @@ def create_user_document(data, context):
         with tempfile.NamedTemporaryFile(delete=False) as temp_file:
             temp_file.write(credentials_file_content.encode())
             temp_file_path = temp_file.name 
+        
+        return temp_file_path
 
-        # Initialize the Firebase Admin SDK with the temporary file
+    except Exception as e:
+        print("Error downloading file from bucket: ", e)
+
+
+# Cloud Function to create a Firestore document for a new user
+def create_user_document(data, context):
+
+    try:
+        bucket_name = "gladius-backend"
+        credentials_file_path = "firebase-admi-sdk-d55dc53a0acc.json"
+        firebase_key_file = download_file_from_bucket(bucket_name, credentials_file_path)
+
         if not firebase_admin._apps:
-            cred = credentials.Certificate(temp_file_path)
+            cred = credentials.Certificate(firebase_key_file)
             firebase_admin.initialize_app(cred)
         db = firestore.client()
-
-        #cred = credentials.Certificate(credentials_file_content)
-        # firebase_admin.initialize_app(cred)
 
         print('Firebase connection is up')
 
     except Exception as e:
         print("Error initializing Firebase Admin SDK:", e)
+    
+    try:
+        # Specify the club ID and get a reference to the club document
+        club_id = '2'
+        club_ref = db.collection('clubs').document(club_id)
+
+        # Fetch the document
+        doc = club_ref.get()
+
+        # Check if the document exists
+        if doc.exists:
+            # Access the encrypted_encryption_key field
+            encrypted_encryption_key = doc.to_dict().get('encrypted_encryption_key', 'Default or error value')
+            print("Encrypted Encryption Key loaded")
+        else:
+            print("Document does not exist.")
+   
+    except Exception as e:
+        print("Error reading Encrypted Encryption Key:", e)
+    
+    try:
+        encryption_key = kms_decrypt_encryption_key(encrypted_encryption_key, firebase_key_file)
+        f = Fernet(encryption_key)
+        
+    except Exception as e:
+        print("Error initializing Fernet client:", e)    
 
     try:
 
@@ -108,7 +161,8 @@ def create_user_document(data, context):
             "displayName": display_name,
             "name" : display_name,
             "stellar_wallet:" : stellar_wallet.secret,
-            "stellar_secret:" : stellar_wallet.public_key
+            "encrypted_stellar_secret" : f.encrypt(stellar_wallet.secret.encode()),
+            #"stellar_secret:" : stellar_wallet.public_key
         }
 
         # Set the data in Firestore
@@ -118,6 +172,3 @@ def create_user_document(data, context):
 
     except Exception as e:
         print("Firebase Error:", e)
-
-# Deploy the Cloud Function
-# create_user_function = auth.user().on_create(create_user_document)
