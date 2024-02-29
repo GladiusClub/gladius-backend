@@ -9,7 +9,7 @@ network_passphrase = Network.TESTNET_NETWORK_PASSPHRASE
 
 # Assuming you have the secret keys for both accounts
 #issuer_secret = ''
-trustor_secret = ''
+trustor_secret = 'SAOEGQCRNGEDGAZWTFIHLSVB6OWNFOCQKPAKP7NCAYE3ISMVSV34RUYR'
 
 #issuer_keypair = Keypair.from_secret(issuer_secret)
 trustor_keypair = Keypair.from_secret(trustor_secret)
@@ -17,7 +17,7 @@ trustor_keypair = Keypair.from_secret(trustor_secret)
 #issuer_account = server.load_account(account_id=issuer_address)
 trustor_account = server.load_account(account_id=trustor_keypair.public_key)
 
-issuer_address ='GALT6V5AXC56AS6XY6XIKET25I3GRII2EIMSXFBVKGGSQT3AKQNLCETY'
+issuer_address = "CBJ5EI5S7GAKEDZYH4P7K477J7FRRD4F46BPCGQI5OU4SBI7G2CMZ7KH"
 
 # Define the asset
 asset_code = "EURC"

@@ -22,12 +22,12 @@ tx_submitter_kp = Keypair.from_secret(
 print("public key; ", tx_submitter_kp.public_key)
 
 # to_address
-to_address ='GBFHY475WERNIEBU6VWOQ6B6LYCAVIH3AOHGR6XJQC3OW6PYTR5RCQHS'
+to_address ='GALT6V5AXC56AS6XY6XIKET25I3GRII2EIMSXFBVKGGSQT3AKQNLCETY'
 
-func_name = "set_admin"
+func_name = "mint"
 args = [
-    scval.to_address(tx_submitter_kp.public_key),
-    scval.to_int128(1000)
+    scval.to_address(to_address),
+    scval.to_int128(444)
 ]
 
 
