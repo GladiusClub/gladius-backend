@@ -20,7 +20,7 @@ const contractAddress =
 const contract = new Contract(contractAddress);
 
 // Transaction submitter's keypair
-const secretKey = "SAOEGQCRNGEDGAZWTFIHLSVB6OWNFOCQKPAKP7NCAYE3ISMVSV34RUYR"; // Replace with actual secret key
+const secretKey = ""; // Replace with actual secret key
 const txSubmitterKeypair = Keypair.fromSecret(secretKey);
 
 console.log("Public Key:", txSubmitterKeypair.publicKey());
