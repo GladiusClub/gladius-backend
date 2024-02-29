@@ -14,17 +14,23 @@ rpc_server_url = "https://soroban-testnet.stellar.org:443"
 soroban_server = SorobanServer(rpc_server_url)
 network_passphrase = Network.TESTNET_NETWORK_PASSPHRASE
 
-# https://github.com/stellar/soroban-examples/tree/v0.6.0/auth
 contract_id = "CBJ5EI5S7GAKEDZYH4P7K477J7FRRD4F46BPCGQI5OU4SBI7G2CMZ7KH"
 tx_submitter_kp = Keypair.from_secret(
-    ""
+    "SAOEGQCRNGEDGAZWTFIHLSVB6OWNFOCQKPAKP7NCAYE3ISMVSV34RUYR"
 )
+
+print("public key; ", tx_submitter_kp.public_key)
+
 # to_address
 to_address ='GBFHY475WERNIEBU6VWOQ6B6LYCAVIH3AOHGR6XJQC3OW6PYTR5RCQHS'
 
-func_name = "mint"
-args = [scval.to_address(tx_submitter_kp.public_key), scval.to_uint32(10)]
-#args = [ scval.to_address(to_address), scval.to_uint32(10)]
+func_name = "set_admin"
+args = [
+    scval.to_address(tx_submitter_kp.public_key),
+    scval.to_int128(1000)
+]
+
+
 
 source = soroban_server.load_account(tx_submitter_kp.public_key)
 tx = (
