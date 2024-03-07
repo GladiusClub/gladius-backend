@@ -32,17 +32,21 @@ async function invokeTransaction(prepped_tx, source, sim) {
     return response;
 }
 export const StellarGladiusContracts = functions.https.onRequest(async (req, res) => {
-    const secretKey = ""; // Ensure to securely manage this secret
+    const secretKey = "SBJTRWSLGANJMFKZG4PUZMDHFLJHFOZC6OFB3XS25UDMQD337NQZDLAN"; // Ensure to securely manage this secret
     const txSubmitterKeypair = Keypair.fromSecret(secretKey);
-    const to = "GALT6V5AXC56AS6XY6XIKET25I3GRII2EIMSXFBVKGGSQT3AKQNLCETY";
+    const { contract_func, to_address, amount } = req.body;
+    // example parameters
+    // const contract_func = "mint",
+    // const to = "GALT6V5AXC56AS6XY6XIKET25I3GRII2EIMSXFBVKGGSQT3AKQNLCETY";
+    // const amount = 111
     const args = [
-        new Address(to).toScVal(),
-        nativeToScVal(666, { type: "i128" }),
+        new Address(to_address).toScVal(),
+        nativeToScVal(amount, { type: "i128" }),
     ];
     try {
         console.log(txSubmitterKeypair.publicKey());
         const txBuilder = await createTxBuilder(txSubmitterKeypair);
-        let operation = contract.call("mint", ...args);
+        let operation = contract.call(contract_func, ...args);
         if (typeof operation === "string") {
             operation = xdr.Operation.fromXDR(operation, "base64");
         }
