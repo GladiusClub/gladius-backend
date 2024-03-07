@@ -57,7 +57,7 @@ async function invokeTransaction(
 }
 
 export const StellarGladiusContracts = functions.https.onRequest(async (req: Request, res: Response) => {
-  const secretKey = "SBJTRWSLGANJMFKZG4PUZMDHFLJHFOZC6OFB3XS25UDMQD337NQZDLAN"; // Ensure to securely manage this secret
+  const secretKey = ""; // Ensure to securely manage this secret
   const txSubmitterKeypair = Keypair.fromSecret(secretKey);
   const { contract_func, to_address, amount } = req.body;
   // example parameters
