@@ -1,0 +1,22 @@
+"use strict";
+{
+    "compilerOptions";
+    {
+        "target";
+        "es2018",
+            "module";
+        "commonjs",
+            "outDir";
+        ".",
+            "strict";
+        true,
+            "esModuleInterop";
+        true,
+            "skipLibCheck";
+        true,
+            "forceConsistentCasingInFileNames";
+        true;
+    }
+    "exclude";
+    ["node_modules"];
+}
