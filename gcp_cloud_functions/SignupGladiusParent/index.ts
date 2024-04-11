@@ -1,7 +1,7 @@
 import * as functions from 'firebase-functions';
 import { db } from './scripts/firebaseAdminSetup.js';
 import { Address, nativeToScVal, xdr, scValToNative } from 'stellar-sdk';
-import { AddressBook } from './utils/address_book_api.js';
+import { AddressBook } from './utils/address_book.js';
 import { getTokenBalance, getIsRole, getTotalCourses, invokeContract } from './utils/contract.js';
 import { api_config } from './utils/api_config.js';
 import { config } from './utils/env_config.js';
@@ -256,7 +256,14 @@ console.log("Connecting to firebase");
           console.log(`Club wallet ${club_stellar_wallet} `);
           
           await SetGladiusParent(addressBook,  parent_stellar_secret ,student_stellar_secret, club_stellar_secret);
-
+          response.status(200).json({
+            message: `Student ${StudentData.email} was added to club ${clubData.name} by ${ParentData.email}`,
+            parent_public_key: parent_stellar_wallet,
+            student_public_key: student_stellar_wallet,
+            club_public_key: club_stellar_wallet
+        });
+        
+        
         }
         
 
