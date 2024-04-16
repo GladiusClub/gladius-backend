@@ -26,6 +26,8 @@ trigger app
 
 &#x20;
 
+
+
 #### 2. set club owner in the contract
 
 **Purpose**
@@ -69,9 +71,13 @@ Returns: club\_owner\_UID has been added to club\_doc\_UID
 
 &#x20;&#x20;
 
+
+
 #### 3.5 add calendar to the club
 
 ·         Frontend adds a calendar link to a new club doc
+
+####
 
 #### &#x20; 4. create course
 
@@ -110,6 +116,8 @@ Request Body Parameters (example)
 `{"message":"Club owner [user email]  created a club [club public key]","club_public_key":"[Club owner's Stellar public key]"`
 
 &#x20;&#x20;
+
+
 
 #### 5. add student to club
 
@@ -169,6 +177,8 @@ Request Body Parameters (example)
 
 
 
+
+
 ### Check student balance
 
 6\. getStudentBalanceByID
@@ -184,6 +194,8 @@ Endpoint [https://europe-west1-wallet-login-45c1c.cloudfunctions.net/getStudentB
 ``{message: `GLC Balance of ${userData.email}`,   data: balanceGLCStudent }``
 
 &#x20;
+
+
 
 ### Gladius Club NFT
 
@@ -217,35 +229,25 @@ Retrieves Non-Fungible Tokens (NFTs) associated with a specific user within a sp
 
 `Example response`
 
-`{`
+`{` &#x20;
 
-&#x20; `"message": "GLC NFTs of user@example.com",`
+`"message": "GLC NFTs of user@example.com",`
 
 &#x20; `"data": {`
 
 &#x20;   `"nfts": [`
 
-&#x20;     `{`
-
-&#x20;       `"name": "Gladius Token #1",`
+&#x20;     `{ "name": "Gladius Token #1",`
 
 &#x20;       `"image": "https://example.com/nft1.png",`
 
-&#x20;       `"description": "This is a Gladius token representing..."`
+&#x20;       `"description": "This is a Gladius NFT 1"      },`
 
-&#x20;     `},`
-
-&#x20;     `{`
-
-&#x20;       `"name": "Gladius Token #2",`
+&#x20;     `{ "name": "Gladius Token #2",`
 
 &#x20;       `"image": "https://example.com/nft2.png",`
 
-&#x20;       `"description": "This is another Gladius token representing..."`
-
-&#x20;     `}`
-
-&#x20;   `]`
+&#x20;       `"description": "This is another Gladius NFT 2"  }  ]`
 
 `}`
 
