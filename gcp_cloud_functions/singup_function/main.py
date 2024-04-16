@@ -160,9 +160,9 @@ def create_user_document(data, context):
             "created_at": datetime.now(),
             "displayName": display_name,
             "name" : display_name,
-            "stellar_wallet:" : stellar_wallet.secret,
+            "stellar_wallet" : stellar_wallet.secret,
             "encrypted_stellar_secret" : f.encrypt(stellar_wallet.secret.encode()),
-            #"stellar_secret:" : stellar_wallet.public_key
+            "stellar_secret" : stellar_wallet.public_key
         }
 
         # Set the data in Firestore

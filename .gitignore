@@ -1,2 +1,6 @@
-wallets.ipynb
+test/allets.ipynb
 .stellar
+stellar_test/
+node_modules/
+stellar_functions/stellar_ts/node_modules/*
+stellar_functions/stellar_ts/node_modules/bin/
