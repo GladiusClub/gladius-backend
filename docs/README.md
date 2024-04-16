@@ -144,7 +144,6 @@ Request Body Parameters (example)
 &#x20;  \- Mints EURC to Parent
 
 * &#x20;mintToken(addressBook.getContractId(network, 'token\_id'), 200, parent.publicKey(),  payment\_token\_admin);
-*
 
 &#x20;  \- Sets and checks roles for both student and parent
 
@@ -172,9 +171,7 @@ Request Body Parameters (example)
 
 ### Check student balance
 
-&#x20;
-
-6\. [getStudentBalanceByID](https://console.cloud.google.com/functions/details/europe-west1/getStudentBalanceByID?env=gen2\&project=wallet-login-45c1c)
+6\. getStudentBalanceByID
 
 Endpoint [https://europe-west1-wallet-login-45c1c.cloudfunctions.net/getStudentBalanceByID](https://europe-west1-wallet-login-45c1c.cloudfunctions.net/getStudentBalanceByID)
 
@@ -190,31 +187,29 @@ Endpoint [https://europe-west1-wallet-login-45c1c.cloudfunctions.net/getStudentB
 
 ### Gladius Club NFT
 
-&#x20;
-
-#### 7. [fetchGladiusNFT](https://console.cloud.google.com/functions/details/europe-west1/fetchGladiusNFT?env=gen2\&project=wallet-login-45c1c)&#x20;
+#### 7. fetchGladiusNFT  - [source core](https://github.com/GladiusClub/gladius-backend/blob/app/testnet/gcp\_cloud\_functions/fetchGladiusNFT/index.ts)
 
 &#x20;NFT image is hardcoded at the moment
 
-·         Purpose: Retrieves Non-Fungible Tokens (NFTs) associated with a specific user within a sports club environment on the Stellar blockchain, using Firestore to manage user and club data
+**Purpose**
 
-·         Endpoint [https://europe-west1-wallet-login-45c1c.cloudfunctions.net/fetchGladiusNFT](https://europe-west1-wallet-login-45c1c.cloudfunctions.net/fetchGladiusNFT)
+Retrieves Non-Fungible Tokens (NFTs) associated with a specific user within a sports club environment on the Stellar blockchain, using Firestore to manage user and club data
 
-&#x20;
+&#x20;  \- Endpoint [https://europe-west1-wallet-login-45c1c.cloudfunctions.net/fetchGladiusNFT](https://europe-west1-wallet-login-45c1c.cloudfunctions.net/fetchGladiusNFT)
 
-·         NFT Data Retrieval: Executes a series of blockchain calls to:
+\-NFT Data Retrieval: Executes a series of blockchain calls to:
 
 * Get the number of NFTs owned by the user.
 * Fetch each NFT's token ID and associated metadata URI.
 * Retrieve and parse metadata from each URI to compile NFT details.
 
-&#x20;·         Example request
+&#x20;  \-  Example request
 
 `{  "UID": "exampleUserUID"}`
 
-·         Execute: fetchGladiusNFT(addressBook, user\_stellar\_secret, club\_stellar\_secret);
+&#x20;  \- Execute: fetchGladiusNFT(addressBook, user\_stellar\_secret, club\_stellar\_secret);
 
-·         Return response
+&#x20;     \- Return response
 
 &#x20;           {         message: \`GLC NFTs of ${userData.email}\`,
 
@@ -252,25 +247,25 @@ Endpoint [https://europe-west1-wallet-login-45c1c.cloudfunctions.net/getStudentB
 
 &#x20;   `]`
 
-&#x20; `}`
-
 `}`
+
+
 
 &#x20;
 
 ### Gladius coin (GLC) transfer
 
-#### 8. transferGLC
+#### 8. transferGLC - [Source code](https://github.com/GladiusClub/gladius-backend/blob/app/testnet/gcp\_cloud\_functions/invokeGladiusTransaction/index.js)
 
-Purpose: Facilitates the transfer of Gladius Coins (GLC) between a student's account and a sports club's account on the Stellar blockchain, leveraging Firestore for user and club data management.
+**Purpose**
 
-·         Endpoint
+Facilitates the transfer of Gladius Coins (GLC) between a student's account and a sports club's account on the Stellar blockchain, leveraging Firestore for user and club data management.
+
+**Endpoint**
 
 [https://europe-west1-wallet-login-45c1c.cloudfunctions.net/invokeGladiusTransaction](https://europe-west1-wallet-login-45c1c.cloudfunctions.net/invokeGladiusTransaction)
 
-&#x20;
-
-Workflow
+**Workflow**
 
 User and Club Verification :Checks for necessary parameters (UID and amount), verifying that the amount is a valid number. By default sends GLC to club wallet (this can be changed).
 
@@ -289,17 +284,7 @@ Example response
 
 `{  "message": "GLC sent from GAXILOM5P7OQILZVUDGMBQXOUOFY2K5HOU6LHKBRL3TAIL3HABAODZMV to GBHCD53TFM74SFTY4K2CQWGL6L2RR57Y5YPTFMOOJG5CE6EXDLGJVVYJ in the amount of 100" }`
 
-* [Source](https://github.com/GladiusClub/gladius-backend/blob/app/testnet/gcp\_cloud\_functions/invokeGladiusTransaction/index.js) code
 
-[https://github.com/GladiusClub/gladius-backend/blob/app/testnet/gcp\_cloud\_functions/invokeGladiusTransaction/index.js](https://github.com/GladiusClub/gladius-backend/blob/app/testnet/gcp\_cloud\_functions/invokeGladiusTransaction/index.js)
-
-* [How to call](https://github.com/GladiusClub/gladius-backend/blob/app/testnet/gcp\_cloud\_functions/invokeGladiusTransaction/test\_cf.sh)&#x20;
-
-&#x20;
-
-[https://github.com/GladiusClub/gladius-backend/blob/app/testnet/gcp\_cloud\_functions/invokeGladiusTransaction/test\_cf.sh](https://github.com/GladiusClub/gladius-backend/blob/app/testnet/gcp\_cloud\_functions/invokeGladiusTransaction/test\_cf.sh)
-
-&#x20;
 
 ### Cloud function triggers
 
