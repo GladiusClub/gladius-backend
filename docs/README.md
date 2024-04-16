@@ -181,7 +181,7 @@ Request Body Parameters (example)
 
 ### Check student balance
 
-6\. getStudentBalanceByID
+#### 6. getStudentBalanceByID -[ source code](../gcp\_cloud\_functions/getStudentBalanceByID/index.ts)
 
 Endpoint [https://europe-west1-wallet-login-45c1c.cloudfunctions.net/getStudentBalanceByID](https://europe-west1-wallet-login-45c1c.cloudfunctions.net/getStudentBalanceByID)
 
@@ -257,7 +257,7 @@ Retrieves Non-Fungible Tokens (NFTs) associated with a specific user within a sp
 
 ### Gladius coin (GLC) transfer
 
-#### 8. transferGLC - [Source code](https://github.com/GladiusClub/gladius-backend/blob/app/testnet/gcp\_cloud\_functions/invokeGladiusTransaction/index.js)
+#### 8. transferGLC - [Source code](../gcp\_cloud\_functions/invokeGladiusTransaction/index.js)
 
 **Purpose**
 
@@ -290,6 +290,6 @@ Example response
 
 ### Cloud function triggers
 
-* [Firebase\_auth\_sync](https://console.cloud.google.com/functions/details/us-central1/firebase\_auth\_sync?env=gen1\&project=wallet-login-45c1c) - triggers Firebase Authentication. Creates user doc from Firebase Auth. Create wallets [source](https://github.com/GladiusClub/gladius-backend/blob/app/testnet/gcp\_cloud\_functions/singup\_function/main.py)
+* [Firebase\_auth\_sync](https://console.cloud.google.com/functions/details/us-central1/firebase\_auth\_sync?env=gen1\&project=wallet-login-45c1c) - triggers Firebase Authentication. Creates user doc from Firebase Auth. Create wallets ( [source](https://github.com/GladiusClub/gladius-backend/blob/app/testnet/gcp\_cloud\_functions/singup\_function/main.py) )
 * [Delete\_user\_document](https://console.cloud.google.com/functions/details/us-central1/delete\_user\_document?env=gen1\&project=wallet-login-45c1c) - triggers Firebase Authentication. Deletes user doc when account is deleted from Firebase Auth
-* [Firestore\_sync\_users](https://console.cloud.google.com/functions/details/us-central1/firestore\_sync\_users?env=gen1\&project=wallet-login-45c1c) - triggers Cloud Firestore doc change. Sync clubs\_roles field in /users doc and members docs in /clubs [source](https://github.com/GladiusClub/gladius-backend/blob/app/testnet/gcp\_cloud\_functions/firebase\_sync/main.py)
+* [Firestore\_sync\_users](https://console.cloud.google.com/functions/details/us-central1/firestore\_sync\_users?env=gen1\&project=wallet-login-45c1c) - triggers Cloud Firestore doc change. Sync clubs\_roles field in /users doc and members docs in /clubs ( [source](https://github.com/GladiusClub/gladius-backend/blob/app/testnet/gcp\_cloud\_functions/firebase\_sync/main.py) )
