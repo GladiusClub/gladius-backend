@@ -20,9 +20,7 @@ This Firebase function facilitates the sign-up process for the Gladius Club Owne
 
 \- triggers Auth create record and creates doc ( in /users) with stellar wallet
 
-trigger app
-
-[https://console.cloud.google.com/functions/details/us-central1/firebase\_auth\_sync?env=gen1\&project=wallet-login-45c1c](https://console.cloud.google.com/functions/details/us-central1/firebase\_auth\_sync?env=gen1\&project=wallet-login-45c1c)
+[trigger source code](../gcp\_cloud\_functions/firebase\_sync/main.py)
 
 &#x20;
 
