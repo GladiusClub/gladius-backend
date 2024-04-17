@@ -153,31 +153,22 @@ Request Body Parameters (example)
 
 \-   Executes contract functions with provided parameters
 
-&#x20;  \- Mints EURC to Parent
-
-* &#x20;mintToken(addressBook.getContractId(network, 'token\_id'), 200, parent.publicKey(),  payment\_token\_admin);
-
-&#x20;  \- Sets and checks roles for both student and parent
-
-* getIsRole(addressBook.getContractId(network, 'gladius\_subscriptions\_id'), 'is\_parent', parent.publicKey(), parent);
-* getIsRole(addressBook.getContractId(network, 'gladius\_subscriptions\_id'), 'is\_student', student.publicKey(), student);
-
-&#x20;  \- Registers and manages course subscriptions
-
-* invokeContract('gladius\_subscriptions\_id', addressBook, 'get\_course', getCourseParams, sport\_club);
-* invokeContract('gladius\_subscriptions\_id', addressBook, 'subscribe\_course', subscribeCourseParams, parent);
-
-&#x20;  \- Returns contract function response
-
-* Example response
+* Mints EURC to Parent
+  * mintToken(addressBook.getContractId(network, 'token\_id'), 200, parent.publicKey(),  payment\_token\_admin);
+* Sets and checks roles for both student and parent
+* Registers and manages course subscriptions
+  * invokeContract('gladius\_subscriptions\_id', addressBook, 'get\_course', getCourseParams, sport\_club);
+  * invokeContract('gladius\_subscriptions\_id', addressBook, 'subscribe\_course', subscribeCourseParams, parent);
+* Returns contract function response
+  * Example response
 
 `{  "message": "Student student@example.com was added to club ExampleClub by parent@example.com",`
 
-&#x20; `"parent_public_key": "GAXILOM5P7OQILZVUDGMBQXOUOFY2K5HOU6LHKBRL3TAIL3HABAODZMV",`
+`"parent_public_key":"GAXILOM5P7OQILZVUDGMBQXOUOFY2K5HOU6LHKBRL3TAIL3HABAODZMV",`
 
-&#x20; `"student_public_key": "GC3BQVW653PFYBRIXILV2MVVQQ4TCBQZ6FAQ3GO6PDFC3O64FAK3DO6Q",`
+`"student_public_key":"GC3BQVW653PFYBRIXILV2MVVQQ4TCBQZ6FAQ3GO6PDFC3O64FAK3DO6Q",`
 
-&#x20; `"club_public_key": "GBHCD53TFM74SFTY4K2CQWGL6L2RR57Y5YPTFMOOJG5CE6EXDLGJVVYJ" }`
+`"club_public_key":"GBHCD53TFM74SFTY4K2CQWGL6L2RR57Y5YPTFMOOJG5CE6EXDLGJVVYJ" }`
 
 
 
