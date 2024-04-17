@@ -7,7 +7,6 @@ import { api_config } from './utils/api_config.js';
 import { config } from './utils/env_config.js';
 import { mintToken } from './scripts/mint_token.js';
 
-
 export const SignupGladiusParent = functions.https.onRequest(async (request, response) => {
   // Set CORS headers for preflight requests
   response.set('Access-Control-Allow-Origin', 'http://localhost:3000');
