@@ -133,9 +133,9 @@ Purpose: Manages the role assignment and course subscriptions for students and p
 
 &#x20;  \-> wallets created automatically following logic described in (1)
 
-\- calls [https://europe-west1-wallet-login-45c1c.cloudfunctions.net/SignupGladiusClubCourse](https://europe-west1-wallet-login-45c1c.cloudfunctions.net/SignupGladiusClubCourse)
+\- calls [https://europe-west1-wallet-login-45c1c.cloudfunctions.net/SignupGladiusParent](https://europe-west1-wallet-login-45c1c.cloudfunctions.net/SignupGladiusParent)
 
-Request Body Parameters (example)
+Request Body Parameters ([example](../gcp\_cloud\_functions/SignupGladiusParent/test\_cf.sh))
 
 `{  "StudentUID": "exampleStudentUID",`
 
