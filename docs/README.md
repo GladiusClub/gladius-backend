@@ -4,7 +4,7 @@
 
 ### &#x20;Gladius Club Sign-up
 
-#### &#x20;1. create club owner user
+#### &#x20;1. create club owner user  cloud function
 
 **Purpose**
 
@@ -26,7 +26,9 @@ This Firebase function facilitates the sign-up process for the Gladius Club Owne
 
 
 
-#### 2. set club owner in the contract
+#### 2. set club owner in the contract  cloud function
+
+[source code](../gcp\_cloud\_functions/SignupGladiusClub/index.ts)
 
 **Purpose**
 
@@ -75,9 +77,11 @@ Returns: club\_owner\_UID has been added to club\_doc\_UID
 
 ·         Frontend adds a calendar link to a new club doc
 
-####
 
-#### &#x20; 4. create course
+
+#### &#x20; 4. create course cloud function
+
+[source code](../gcp\_cloud\_functions/SignupGladiusClubCourse/index.ts)
 
 **Purpose**
 
@@ -117,7 +121,9 @@ Request Body Parameters (example)
 
 
 
-#### 5. add student to club
+#### 5. add student to club  cloud function
+
+[source code](../gcp\_cloud\_functions/SignupGladiusParent/index.ts)
 
 Purpose: Manages the role assignment and course subscriptions for students and parents within a sports club ecosystem on the Stellar blockchain, facilitated through Firebase Firestore and Stellar smart contracts.
 
@@ -179,7 +185,9 @@ Request Body Parameters (example)
 
 ### Check student balance
 
-#### 6. getStudentBalanceByID -[ source code](../gcp\_cloud\_functions/getStudentBalanceByID/index.ts)
+#### 6. getStudentBalanceByID&#x20;
+
+[ source code](../gcp\_cloud\_functions/getStudentBalanceByID/index.ts)
 
 Endpoint [https://europe-west1-wallet-login-45c1c.cloudfunctions.net/getStudentBalanceByID](https://europe-west1-wallet-login-45c1c.cloudfunctions.net/getStudentBalanceByID)
 
@@ -197,7 +205,9 @@ Endpoint [https://europe-west1-wallet-login-45c1c.cloudfunctions.net/getStudentB
 
 ### Gladius Club NFT
 
-#### 7. fetchGladiusNFT  - [source core](https://github.com/GladiusClub/gladius-backend/blob/app/testnet/gcp\_cloud\_functions/fetchGladiusNFT/index.ts)
+#### 7. fetchGladiusNFT &#x20;
+
+[source core](https://github.com/GladiusClub/gladius-backend/blob/app/testnet/gcp\_cloud\_functions/fetchGladiusNFT/index.ts)
 
 &#x20;NFT image is hardcoded at the moment
 
@@ -255,7 +265,9 @@ Retrieves Non-Fungible Tokens (NFTs) associated with a specific user within a sp
 
 ### Gladius coin (GLC) transfer
 
-#### 8. transferGLC - [Source code](../gcp\_cloud\_functions/invokeGladiusTransaction/index.js)
+#### 8. transferGLC
+
+&#x20;[Source code](../gcp\_cloud\_functions/invokeGladiusTransaction/index.js)
 
 **Purpose**
 
@@ -291,3 +303,8 @@ Example response
 * [Firebase\_auth\_sync](https://console.cloud.google.com/functions/details/us-central1/firebase\_auth\_sync?env=gen1\&project=wallet-login-45c1c) - triggers Firebase Authentication. Creates user doc from Firebase Auth. Create wallets ( [source](https://github.com/GladiusClub/gladius-backend/blob/app/testnet/gcp\_cloud\_functions/singup\_function/main.py) )
 * [Delete\_user\_document](https://console.cloud.google.com/functions/details/us-central1/delete\_user\_document?env=gen1\&project=wallet-login-45c1c) - triggers Firebase Authentication. Deletes user doc when account is deleted from Firebase Auth
 * [Firestore\_sync\_users](https://console.cloud.google.com/functions/details/us-central1/firestore\_sync\_users?env=gen1\&project=wallet-login-45c1c) - triggers Cloud Firestore doc change. Sync clubs\_roles field in /users doc and members docs in /clubs ( [source](https://github.com/GladiusClub/gladius-backend/blob/app/testnet/gcp\_cloud\_functions/firebase\_sync/main.py) )
+
+### Future work
+
+Generate images with OpenAI API - [could function draft](./)
+
