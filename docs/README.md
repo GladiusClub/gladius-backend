@@ -103,7 +103,9 @@ Request Body Parameters (example)
 
 &#x20; `"CoursePrice" : 200,`
 
-&#x20; `"Courseincentive" : 15 }'`
+&#x20; `"Courseincentive" : 15,`
+
+&#x20; `"CourseIndex" : 8 }'`
 
 **backend**
 
