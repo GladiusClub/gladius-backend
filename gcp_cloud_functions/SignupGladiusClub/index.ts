@@ -2,11 +2,12 @@
 import * as functions from 'firebase-functions';
 import { FieldValue } from 'firebase-admin/firestore';
 import { db } from './scripts/firebaseAdminSetup.js';
-import { Address, nativeToScVal, xdr, scValToNative } from 'stellar-sdk';
+import { Address, nativeToScVal, xdr, scValToNative, Keypair, Networks, StrKey } from 'stellar-sdk';
 import { AddressBook } from './utils/address_book.js';
 import {  getIsRole, invokeContract } from './utils/contract.js';
 import { api_config } from './utils/api_config.js';
 import { config } from './utils/env_config.js';
+
 
 
 const allowedOrigins = [
@@ -82,6 +83,7 @@ async function ClubSignupGladius(addressBook: AddressBook,   club_stellar_secret
       new Address(sport_club.publicKey()).toScVal(), // sport_club
       nativeToScVal(true, { type: 'bool' }), // is
     ];
+    
     await invokeContract('gladius_subscriptions_id', addressBook, 'set_is_sport_club', setIsSportClubParams, gladius_admin);
   
     
@@ -142,13 +144,15 @@ async function ClubSignupGladius(addressBook: AddressBook,   club_stellar_secret
         console.log("ClubOwner public key:", club_owner_stellar_wallet);
         
         await ClubSignupGladius(addressBook, club_owner_stellar_secret);
+        
+       
         response.status(200).json({
           message: `Club owner ${userData.email} created a club ${userData.stellar_wallet}`,
           data: {
           club_public_key: club_owner_stellar_wallet, 
           club_name: ClubName,
           club_uid: clubDocRef.id,
-          gladius_subscriptions_id: addressBook.getContractId(network, 'gladius_subscriptions_id')
+          gladius_subscriptions_id: "c8b70c1f05c748873ae9765a1ec350dbaba452cd3d32b88fedb8425858faa359",
         }
         });
   } else {

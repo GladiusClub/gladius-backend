@@ -6,10 +6,28 @@ import {  getTotalCourses, getIsRole, invokeContract } from './utils/contract.js
 import { api_config } from './utils/api_config.js';
 import { config } from './utils/env_config.js';
 
+function serializeBigInts(obj: any): void {
+  Object.keys(obj).forEach(key => {
+    if (typeof obj[key] === 'bigint') {
+      obj[key] = obj[key].toString();
+    } else if (typeof obj[key] === 'object' && obj[key] !== null) {
+      serializeBigInts(obj[key]);
+    }
+  });
+}
 
-export const SignupGladiusClubCourse = functions.https.onRequest(async (request, response) => {
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://gladius-frontend.web.app',
+];
+
+export const testSignupGladiusClubCourse = functions.https.onRequest(async (request, response) => {
   // Set CORS headers for preflight requests
-  response.set('Access-Control-Allow-Origin', 'http://localhost:3000');
+//response.set('Access-Control-Allow-Origin', 'http://localhost:3000');
+const origin: string = request.headers.origin || 'http://localhost:3000';
+if (allowedOrigins.includes(origin)) {
+  response.set('Access-Control-Allow-Origin', origin) ;
+}
   response.set('Access-Control-Allow-Methods', 'GET, POST');
   response.set('Access-Control-Allow-Headers', 'Content-Type');
   response.set('Access-Control-Max-Age', '3600');
@@ -131,7 +149,13 @@ async function CreateCourse(
 
   console.log("   ")
   console.log("   ")
-    
+
+  serializeBigInts(gotCourseNative);
+  
+  return {
+    courseIndex: courseIndex,
+    details: gotCourseNative
+  };
     
   }
   
@@ -152,10 +176,15 @@ async function CreateCourse(
         const club_owner_stellar_secret = userData.stellar_secret
         console.log("ClubOwner public key:", club_owner_stellar_wallet);
         
-        await CreateCourse(addressBook, club_owner_stellar_secret, CourseName, CoursePrice ,Courseincentive);
+        const invokeDetails = await CreateCourse(addressBook, club_owner_stellar_secret, CourseName, CoursePrice ,Courseincentive);
         response.status(200).json({
-          message: `Club owner ${userData.email} created a club ${userData.stellar_wallet}`,
+          message: `Club owner ${userData.email} created a course for club ${userData.stellar_wallet}`,
           club_public_key: club_owner_stellar_wallet,
+          course_name: CourseName,
+          course_price: CoursePrice,
+          gladius_subscriptions_id: "c8b70c1f05c748873ae9765a1ec350dbaba452cd3d32b88fedb8425858faa359",
+          courseIndex: invokeDetails.courseIndex, 
+          invokeDetails: invokeDetails.details
         });
   };
   }
