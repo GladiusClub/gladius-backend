@@ -12,5 +12,5 @@ Gladius wallets are created using standard [Stellar SDK](https://developers.stel
 Here is a [source code](https://github.com/GladiusClub/gladius-backend/blob/main/gcp_cloud_functions/singup_function/main.py) of wallet creation and encryption process. Feel free to contract us if you'll find in insufficient. 
 
 ## Gladius backend description
-For detailed information about Gladius backend and additional documentation, please refer to the [documentation directory](https://gladius-3.gitbook.io/backend).
+For detailed information about Gladius backend and additional documentation, please refer to the [documentation directory](https://gladius-2.gitbook.io/backend).
 
