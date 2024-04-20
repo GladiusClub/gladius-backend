@@ -1,4 +1,5 @@
 import * as functions from 'firebase-functions';
+import { FieldValue } from 'firebase-admin/firestore';
 import { db } from './scripts/firebaseAdminSetup.js';
 import { Address, nativeToScVal, xdr, scValToNative } from 'stellar-sdk';
 import { AddressBook } from './utils/address_book.js';
@@ -7,9 +8,18 @@ import { api_config } from './utils/api_config.js';
 import { config } from './utils/env_config.js';
 import { mintToken } from './scripts/mint_token.js';
 
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://gladius-frontend.web.app',
+];
+
 export const SignupGladiusParent = functions.https.onRequest(async (request, response) => {
   // Set CORS headers for preflight requests
-  response.set('Access-Control-Allow-Origin', 'http://localhost:3000');
+  //response.set('Access-Control-Allow-Origin', 'http://localhost:3000');
+  const origin: string = request.headers.origin || 'http://localhost:3000';
+    if (allowedOrigins.includes(origin)) {
+        response.set('Access-Control-Allow-Origin', origin);
+    }
   response.set('Access-Control-Allow-Methods', 'GET, POST');
   response.set('Access-Control-Allow-Headers', 'Content-Type');
   response.set('Access-Control-Max-Age', '3600');
@@ -24,6 +34,9 @@ const folder = 'public';
 
 const StudentUID: string = request.body.StudentUID; // Extract StudentUID from the request body
 const ParentUID: string = request.body.ParentUID; // Extract ParentUID from the request body
+const ClubUID = request.body.ClubUID;
+const GroupUID = request.body.GroupUID;
+const StudentPassword = request.body.StudentPassword;
 
 if (!StudentUID || !StudentUID) {
   response.status(400).send('Missing or invalid parameters.');
@@ -219,16 +232,43 @@ console.log("Connecting to firebase");
   
   const StudentdocRef = db.collection('users').doc(StudentUID);
   const ParentdocRef = db.collection('users').doc(ParentUID);
-
-  const club_id = '2';
+  const club_id = ClubUID;
+  
   const clubRef = db.collection('clubs').doc(club_id);
   
   const StudentdocSnap = await StudentdocRef.get();
   const ParentdocSnap = await ParentdocRef.get();
   const clubSnap = await clubRef.get();
   
-  if (ParentdocSnap.exists) { 
+  
+  if (ParentdocSnap.exists && StudentdocSnap.exists) { 
     const ParentData = ParentdocSnap.data();
+    const StudentData = StudentdocSnap.data();
+
+    const ParentRole = { club_id: ClubUID, role: 'parent' };
+
+    await ParentdocRef.update({
+      clubs_roles: FieldValue.arrayUnion(ParentRole)
+  });
+
+  const StudentRole = { club_id: ClubUID, role: 'athlete' };
+    await StudentdocRef.update({
+      clubs_roles: FieldValue.arrayUnion(StudentRole)
+  });
+  const displayName = StudentData?.displayName || 'No Name';
+  const childrenRef = ParentdocRef.collection('children');
+    await childrenRef.doc(StudentUID).set({
+      
+      uid: StudentUID,
+      displayName: displayName,
+      ClubUID: ClubUID,
+      GroupUID: GroupUID,
+      StudentPassword: StudentPassword 
+    });
+
+    console.log('Roles updated successfully.');
+    
+  
     if (ParentData && ParentData.stellar_wallet && ParentData.email) { // Check if userData is truthy before accessing its properties
       console.log(`Parent doc with ID ${ParentUID} was found. User email: `, ParentData.email);
       
@@ -236,9 +276,8 @@ console.log("Connecting to firebase");
       const parent_stellar_secret = ParentData.stellar_secret
       console.log("Parent public key:", parent_stellar_wallet);
 
-  if (StudentdocSnap.exists) { 
-    const StudentData = StudentdocSnap.data();
-    if (StudentData && StudentData.stellar_wallet && StudentData.email) { // Check if userData is truthy before accessing its properties
+      if (StudentData && StudentData.stellar_wallet && StudentData.email) 
+      { // Check if userData is truthy before accessing its properties
       console.log(`Student doc with ID ${StudentUID} was found. User email: `, StudentData.email);
       
       const student_stellar_wallet = StudentData.stellar_wallet
@@ -270,17 +309,13 @@ console.log("Connecting to firebase");
       else {
         console.log(`club with ID ${club_id} not found `);
       }
-      
     }
   } else {
     console.log(`No Student document with id ${StudentUID} `);  
   }
   
-   }
-  
-  } else {
-    console.log(`No Parent document with id ${StudentUID} `);  
-  }
+ }
 
 
 });
+
