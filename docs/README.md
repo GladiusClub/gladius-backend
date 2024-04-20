@@ -103,7 +103,9 @@ Request Body Parameters (example)
 
 &#x20; `"CoursePrice" : 200,`
 
-&#x20; `"Courseincentive" : 15 }'`
+&#x20; `"Courseincentive" : 15,`
+
+&#x20; `"CourseIndex" : 8 }'`
 
 **backend**
 
@@ -141,9 +143,11 @@ Request Body Parameters ([example](../gcp\_cloud\_functions/SignupGladiusParent/
 
 &#x20; `"ParentUID": "exampleParentUID",`
 
-&#x20; `"ClubUID" : "exampleClubUID ",`
+&#x20; `"ClubUID" : "exampleClubUID",`
 
-&#x20; `"GroupUID" : "exampleGroupUID " }`
+&#x20; `"GroupUID" : "exampleGroupUID",`
+
+&#x20; `"`StudentPassword" : "exampleStudentPassword" `}`
 
 **backend**
 
