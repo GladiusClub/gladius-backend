@@ -143,9 +143,11 @@ Request Body Parameters ([example](../gcp\_cloud\_functions/SignupGladiusParent/
 
 &#x20; `"ParentUID": "exampleParentUID",`
 
-&#x20; `"ClubUID" : "exampleClubUID ",`
+&#x20; `"ClubUID" : "exampleClubUID",`
 
-&#x20; `"GroupUID" : "exampleGroupUID " }`
+&#x20; `"GroupUID" : "exampleGroupUID",`
+
+&#x20; `"`StudentPassword" : "exampleStudentPassword" `}`
 
 **backend**
 
