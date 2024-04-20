@@ -2,7 +2,7 @@
 
 ## Gladius backend functional setup
 
-### &#x20;Gladius Club Sign-up
+### &#x20;Club Sign-up
 
 #### &#x20;1. create club owner user  cloud function
 
@@ -79,7 +79,9 @@ Returns: club\_owner\_UID has been added to club\_doc\_UID
 
 
 
-#### &#x20; 4. create course cloud function
+### Create Course
+
+#### &#x20;4. create course cloud function
 
 [source code](../gcp\_cloud\_functions/SignupGladiusClubCourse/index.ts)
 
@@ -121,7 +123,7 @@ Request Body Parameters (example)
 
 &#x20;&#x20;
 
-
+### Signup as Parent&#x20;
 
 #### 5. add student to club  cloud function
 
@@ -147,7 +149,7 @@ Request Body Parameters ([example](../gcp\_cloud\_functions/SignupGladiusParent/
 
 &#x20; `"GroupUID" : "exampleGroupUID",`
 
-&#x20; `"`StudentPassword" : "exampleStudentPassword" `}`
+&#x20; `"StudentPassword" : "exampleStudentPassword" }`
 
 **backend**
 
@@ -178,7 +180,7 @@ Request Body Parameters ([example](../gcp\_cloud\_functions/SignupGladiusParent/
 
 
 
-### Check student balance
+### Check  balance
 
 #### 6. getStudentBalanceByID&#x20;
 
