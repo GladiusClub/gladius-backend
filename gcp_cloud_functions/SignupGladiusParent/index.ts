@@ -250,21 +250,20 @@ console.log("Connecting to firebase");
     await ParentdocRef.update({
       clubs_roles: FieldValue.arrayUnion(ParentRole)
   });
-
-  const StudentRole = { club_id: ClubUID, role: 'athlete' };
-    await StudentdocRef.update({
-      clubs_roles: FieldValue.arrayUnion(StudentRole)
-  });
-  const displayName = StudentData?.displayName || 'No Name';
-  const childrenRef = ParentdocRef.collection('children');
+    console.log('Parent role updated successfully.');
+    const displayName = StudentData?.displayName || '';
+    const childEmail = StudentData?.email || '';
+    const childWallet = StudentData?.stellar_wallet || 'no_wallet';
+    const childrenRef = ParentdocRef.collection('children');
     await childrenRef.doc(StudentUID).set({
-      
-      uid: StudentUID,
-      displayName: displayName,
-      ClubUID: ClubUID,
-      GroupUID: GroupUID,
-      StudentPassword: StudentPassword 
+        displayName: displayName,
+        ClubUID: ClubUID,
+        GroupUID: GroupUID,
+        password: StudentPassword,
+        email: childEmail,
+        stellar_wallet: childWallet
     });
+    
 
     console.log('Roles updated successfully.');
     
