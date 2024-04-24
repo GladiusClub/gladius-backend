@@ -3,9 +3,33 @@ import { db } from './scripts/firebaseAdminSetup.js';
 import { AddressBook } from './utils/address_book_api.js';
 import { getTokenBalance } from './utils/contract.js';
 import { api_config } from './utils/api_config.js';
+const allowedOrigins = [
+    'http://localhost:3000',
+    'https://gladius-frontend.web.app',
+    'https://gladius-club.web.app'
+];
+const isAllowedOrigin = (origin) => {
+    // Check if the origin is exactly in the list of allowed origins
+    if (allowedOrigins.includes(origin)) {
+        return true;
+    }
+    // Check if the origin matches the pattern for allowed subdomains of gladius-frontend with any TLD
+    if (/https:\/\/gladius-frontend[^\s]+\.web\.app/.test(origin)) {
+        return true;
+    }
+    return false;
+};
 export const getStudentBalanceByID = functions.https.onRequest(async (request, response) => {
     // Set CORS headers for preflight requests
-    response.set('Access-Control-Allow-Origin', 'http://localhost:3000');
+    // response.set('Access-Control-Allow-Origin', 'http://localhost:3000');
+    const origin = request.headers.origin;
+    if (isAllowedOrigin(origin)) {
+        response.set('Access-Control-Allow-Origin', origin);
+    }
+   else {
+        console.error('Origin not allowed by CORS policy:', origin);
+        response.set('Access-Control-Allow-Origin', 'http://localhost:3000'); 
+    }
     response.set('Access-Control-Allow-Methods', 'GET, POST');
     response.set('Access-Control-Allow-Headers', 'Content-Type');
     response.set('Access-Control-Max-Age', '3600');
