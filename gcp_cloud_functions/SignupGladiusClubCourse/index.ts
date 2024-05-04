@@ -182,7 +182,7 @@ async function CreateCourse(
           club_public_key: club_owner_stellar_wallet,
           course_name: CourseName,
           course_price: CoursePrice,
-          gladius_subscriptions_id: "c8b70c1f05c748873ae9765a1ec350dbaba452cd3d32b88fedb8425858faa359",
+          gladius_subscriptions_id: addressBook.getContractId(network, 'gladius_subscriptions_id'),
           courseIndex: invokeDetails.courseIndex, 
           invokeDetails: invokeDetails.details
         });
