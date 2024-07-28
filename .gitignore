@@ -4,3 +4,7 @@ stellar_test/
 node_modules/
 stellar_functions/stellar_ts/node_modules/*
 stellar_functions/stellar_ts/node_modules/bin/
+gcp_cloud_functions/SignupGladiusClub/
+*.env
+scripts/run.sh
+stellar_functions/stellar_ts/package-lock.json
