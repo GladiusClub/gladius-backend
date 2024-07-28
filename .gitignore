@@ -1,2 +1,6 @@
 wallets.ipynb
 .stellar
+stellar_functions
+*.env
+gcp_cloud_functions/SignupGladiusClub/
+scripts/run.sh

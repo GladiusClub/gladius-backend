@@ -1,5 +1,5 @@
 import * as functions from 'firebase-functions';
-import { SorobanRpc, Address, Contract, Keypair, nativeToScVal, xdr, TransactionBuilder, } from "stellar-sdk";
+import { SorobanRpc, Address, Contract, Keypair, nativeToScVal, xdr, TransactionBuilder, } from  "@stellar/stellar-sdk";
 const server = new SorobanRpc.Server("https://soroban-testnet.stellar.org/");
 const contractAddress = "CBJ5EI5S7GAKEDZYH4P7K477J7FRRD4F46BPCGQI5OU4SBI7G2CMZ7KH";
 const contract = new Contract(contractAddress);

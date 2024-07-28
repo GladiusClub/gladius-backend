@@ -8,7 +8,7 @@ import {
   xdr,
   TransactionBuilder,
   Transaction,
-} from "stellar-sdk";
+} from  "@stellar/stellar-sdk";
 
 type txResponse =
   | SorobanRpc.Api.SendTransactionResponse
