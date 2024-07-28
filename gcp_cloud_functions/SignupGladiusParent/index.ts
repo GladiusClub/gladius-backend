@@ -1,7 +1,7 @@
 import * as functions from 'firebase-functions';
 import { FieldValue } from 'firebase-admin/firestore';
 import { db } from './scripts/firebaseAdminSetup.js';
-import { Address, nativeToScVal, xdr, scValToNative } from 'stellar-sdk';
+import { Address, nativeToScVal, xdr, scValToNative } from  "@stellar/stellar-sdk";
 import { AddressBook } from './utils/address_book.js';
 import { getTokenBalance, getIsRole, getTotalCourses, invokeContract } from './utils/contract.js';
 import { api_config } from './utils/api_config.js';

@@ -1,6 +1,6 @@
 import * as functions from 'firebase-functions';
 import { Request, Response } from 'express';  
-import { Address, nativeToScVal, xdr } from 'stellar-sdk';
+import { Address, nativeToScVal, xdr } from  "@stellar/stellar-sdk";
 import { auth, db } from './scripts/firebaseAdminSetup.js';
 import { AddressBook } from './utils/address_book.js';
 import { getTotalSupplyNFT, invokeContract } from './utils/contract.js';

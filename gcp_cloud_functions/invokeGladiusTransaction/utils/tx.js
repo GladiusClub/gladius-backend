@@ -1,4 +1,4 @@
-import { SorobanRpc, Transaction, TransactionBuilder, xdr } from 'stellar-sdk';
+import { SorobanRpc, Transaction, TransactionBuilder, xdr } from  "@stellar/stellar-sdk";
 import { config } from './env_config.js';
 const network = process.argv[2] || 'testnet';
 const loadedConfig = config(network);

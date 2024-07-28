@@ -1,5 +1,5 @@
 import * as functions from 'firebase-functions';
-import { Address, nativeToScVal, xdr } from 'stellar-sdk';
+import { Address, nativeToScVal, xdr } from  "@stellar/stellar-sdk";
 import { db } from './scripts/firebaseAdminSetup.js';
 import { AddressBook } from './utils/address_book.js';
 import { getTokenBalance, invokeContract } from './utils/contract.js';

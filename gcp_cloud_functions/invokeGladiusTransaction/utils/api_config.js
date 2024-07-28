@@ -1,4 +1,4 @@
-import { Keypair } from 'stellar-sdk';
+import { Keypair } from  "@stellar/stellar-sdk";
 class SimplifiedEnvConfig {
     static getUserKeypair(config) {
         return Keypair.fromSecret(config.userSecretKey);

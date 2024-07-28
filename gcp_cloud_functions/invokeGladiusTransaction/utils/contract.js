@@ -2,7 +2,7 @@
 import { randomBytes } from 'crypto';
 import { readFileSync } from 'fs';
 import path from 'path';
-import { Address, Contract, Operation, StrKey, hash, scValToNative, xdr, } from 'stellar-sdk';
+import { Address, Contract, Operation, StrKey, hash, scValToNative, xdr, } from  "@stellar/stellar-sdk";
 import { fileURLToPath } from 'url';
 import { config } from './env_config.js';
 import { createTxBuilder, invoke, invokeTransaction } from './tx.js';
